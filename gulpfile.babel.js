@@ -72,9 +72,11 @@ gulp.task('test:mocha:core', () => {
     .pipe(gulp.dest(output.to('tests')));
 });
 
+gulp.task('ghpages', ['ghpages:wintersmith']);
+
 gulp.task('check', ['check:git']);
 
-// to be sure there is no experimental code
+// to ensure there is no experimental code
 gulp.task('check:git', () => {
   return new Promise((resolve, reject) => {
     const git = child_process.spawn('git', ['status', '--porcelain']);
@@ -91,6 +93,30 @@ gulp.task('check:git', () => {
     git.on('error', (error) => {
       reject(error);
     });
+  });
+});
+
+gulp.task('ghpages:wintersmith', ['userscript', 'summary'], (done) => {
+  const options = {
+    config: 'infra/ghpages/config.json',
+    summary: output.to('infra/summary.md'),
+  };
+  for (const [supportImage, supportLagacy] of allBuildOptions()) {
+    const featureName = supportImage ? 'full' : 'lite';
+    const ecmaName = supportLagacy ? 'es5' : 'es7';
+    const js = output.to(`adsbypasser.${featureName}.${ecmaName}.user.js`);
+    options[`${featureName}_${ecmaName}`] = js;
+  }
+  const rootPath = 'infra/ghpages/contents';
+  const releasePath = path.join(rootPath, 'releases');
+  const outPath = output.to('ghpages');
+
+  const env = wintersmith(options.config);
+  env.build(outPath, (error) => {
+    if (error) {
+      throw error;
+    }
+    done();
   });
 });
 
