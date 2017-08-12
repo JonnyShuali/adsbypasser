@@ -33,23 +33,7 @@ const buildOptions = {
 
 
 gulp.task('default', ['userscript']);
-
-{
-  const subTasks = [];
-  for (const [supportImage, supportLagacy] of allBuildOptions()) {
-    const subTaskName = createUserScriptTask(supportImage, supportLagacy);
-    subTasks.push(subTaskName);
-  }
-  gulp.task('userscript', subTasks);
-}
-for (const [supportImage, supportLagacy] of allBuildOptions()) {
-  createMetadataTask(supportImage, supportLagacy);
-  createBodyTask(supportImage, supportLagacy);
-}
-for (const [supportImage] of imageBuildOptions()) {
-  createNamespaceTask(supportImage);
-  createHandlersTask(supportImage);
-}
+createUserScriptTasks('userscript');
 
 gulp.task('test', ['test:lint', 'test:mocha']);
 
@@ -111,7 +95,26 @@ gulp.task('check:git', () => {
 });
 
 
-function createUserScriptTask (supportImage, supportLagacy) {
+// Generate tasks by various configurations.
+function createUserScriptTasks (taskName) {
+  const subTasks = [];
+  for (const [supportImage, supportLagacy] of allBuildOptions()) {
+    const subTaskName = createSubUserScriptTask(supportImage, supportLagacy);
+    subTasks.push(subTaskName);
+  }
+  gulp.task(taskName, subTasks);
+  for (const [supportImage, supportLagacy] of allBuildOptions()) {
+    createMetadataTask(supportImage, supportLagacy);
+    createBodyTask(supportImage, supportLagacy);
+  }
+  for (const [supportImage] of imageBuildOptions()) {
+    createNamespaceTask(supportImage);
+    createHandlersTask(supportImage);
+  }
+}
+
+
+function createSubUserScriptTask (supportImage, supportLagacy) {
   const featureName = supportImage ? 'full' : 'lite';
   const ecmaName = supportLagacy ? 'es5' : 'es7';
   const taskName = `userscript:${featureName}:${ecmaName}`;
