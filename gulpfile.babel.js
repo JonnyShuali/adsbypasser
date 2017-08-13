@@ -1,6 +1,7 @@
 import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import util from 'util';
 
 import _ from 'lodash';
 import gulp from 'gulp';
@@ -96,7 +97,7 @@ gulp.task('check:git', () => {
   });
 });
 
-gulp.task('ghpages:wintersmith', ['userscript', 'summary'], (done) => {
+gulp.task('ghpages:wintersmith', ['ghpages:clone', 'ghpages:copy:releases'], (done) => {
   const options = {
     config: 'infra/ghpages/config.json',
     summary: output.to('infra/summary.md'),
@@ -118,6 +119,51 @@ gulp.task('ghpages:wintersmith', ['userscript', 'summary'], (done) => {
     }
     done();
   });
+});
+
+gulp.task('ghpages:clone', async () => {
+  const repoPath = output.to('ghpages');
+  const data = require('./.deploy.json');
+
+  const stat = util.promisify(fs.stat);
+  try {
+    const stats = await stat(repoPath);
+    if (stats.isDirectory()) {
+      return;
+    }
+  } catch (e) {
+    // not exists
+  }
+
+  const cloneTask = new Promise((resolve, reject) => {
+    const p = child_process.spawn('git', [
+      'clone',
+      data.ghpages.REPO,
+      '-b',
+      'master',
+      repoPath,
+    ]);
+    p.on('exit', (code) => {
+      if (code !== 0) {
+        reject(new Error('process error'));
+      }
+      resolve();
+    });
+  });
+
+  return await cloneTask;
+});
+
+gulp.task('ghpages:copy:releases', ['userscript'], () => {
+  const files = [];
+  for (const [supportImage, supportLagacy] of allBuildOptions()) {
+    const featureName = supportImage ? 'full' : 'lite';
+    const ecmaName = supportLagacy ? 'es5' : 'es7';
+    const js = output.to(`adsbypasser.${featureName}.${ecmaName}.user.js`);
+    files.push(js);
+  }
+  return gulp.src(files)
+    .pipe(gulp.dest(output.to('ghpages/contents/releases')));
 });
 
 
