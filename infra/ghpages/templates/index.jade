@@ -14,9 +14,11 @@ html(lang='en')
           a(href='https://github.com/adsbypasser/adsbypasser') View the Project on GitHub
             small adsbypasser/adsbypasser
 
-        .links
-          a(href='https://adsbypasser.github.io/releases/adsbypasser.user.js') #[strong Install Full Edition]
-          a(href='https://adsbypasser.github.io/releases/adsbypasserlite.user.js') #[strong Install Lite Edition]
+        #releases.links
+          a.es7(href='/releases/#{locals.full_es7}') #[strong Install Full Edition]
+          a.es7(href='/releases/#{locals.lite_es7}') #[strong Install Lite Edition]
+          a.es5(href='/releases/#{locals.full_es5}') #[strong Install Full Edition]
+          a.es5(href='/releases/#{locals.lite_es5}') #[strong Install Lite Edition]
 
         .links
           a(href='https://adsbypasser.github.io/configure.html') #[strong Configure Settings]
@@ -24,7 +26,7 @@ html(lang='en')
         .links
           a(href='https://github.com/adsbypasser/adsbypasser/issues') #[strong Report Bug / Request Feature]
       section
-        != contents['summary.md'].html
+        //- != contents['summary.md'].html
       footer
         p
           |This project is maintained by&nbsp;
@@ -39,3 +41,4 @@ html(lang='en')
             a(href='https://github.com/jnordberg/wintersmith') Wintersmith
 
     script(src='js/scale.fix.js')
+    script(src='js/index.js')

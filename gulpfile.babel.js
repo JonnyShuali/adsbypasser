@@ -101,12 +101,13 @@ gulp.task('ghpages:wintersmith', ['ghpages:clone', 'ghpages:copy:releases'], (do
   const options = {
     config: 'infra/ghpages/config.json',
     summary: output.to('infra/summary.md'),
+    locals: {},
   };
   for (const [supportImage, supportLagacy] of allBuildOptions()) {
     const featureName = supportImage ? 'full' : 'lite';
     const ecmaName = supportLagacy ? 'es5' : 'es7';
     const js = output.to(`adsbypasser.${featureName}.${ecmaName}.user.js`);
-    options[`${featureName}_${ecmaName}`] = js;
+    options.locals[`${featureName}_${ecmaName}`] = js;
   }
   const rootPath = 'infra/ghpages/contents';
   const releasePath = path.join(rootPath, 'releases');
@@ -163,7 +164,7 @@ gulp.task('ghpages:copy:releases', ['userscript'], () => {
     files.push(js);
   }
   return gulp.src(files)
-    .pipe(gulp.dest(output.to('ghpages/contents/releases')));
+    .pipe(gulp.dest(output.to('ghpages/releases')));
 });
 
 
