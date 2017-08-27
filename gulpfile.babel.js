@@ -106,7 +106,7 @@ gulp.task('ghpages:html', ['ghpages:clone', 'ghpages:copy:releases'], () => {
   for (const [supportImage, supportLagacy] of allBuildOptions()) {
     const featureName = supportImage ? 'full' : 'lite';
     const ecmaName = supportLagacy ? 'es5' : 'es7';
-    const js = output.to(`adsbypasser.${featureName}.${ecmaName}.user.js`);
+    const js = `adsbypasser.${featureName}.${ecmaName}.user.js`;
     options.urls[`${featureName}_${ecmaName}`] = js;
   }
   const rootPath = 'infra/ghpages/contents';
@@ -114,22 +114,13 @@ gulp.task('ghpages:html', ['ghpages:clone', 'ghpages:copy:releases'], () => {
   const outPath = output.to('ghpages');
 
   return gulp.src([
-    'infra/userscript/metadata.template.js',
+    'infra/ghpages/index.template.html',
   ])
     .pipe(plugins.change(_.partial(finalizeHTML, options)))
     .pipe(plugins.rename((path_) => {
       path_.basename = path_.basename.replace('.template', '');
     }))
     .pipe(gulp.dest(outPath));
-
-
-  // const env = wintersmith(options.config);
-  // env.build(outPath, (error) => {
-  //   if (error) {
-  //     throw error;
-  //   }
-  //   done();
-  // });
 });
 
 gulp.task('ghpages:clone', async () => {
