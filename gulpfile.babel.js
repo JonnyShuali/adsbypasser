@@ -7,7 +7,6 @@ import _ from 'lodash';
 import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import webpack from 'webpack';
-import wintersmith from 'wintersmith';
 
 const packageJSON = parsePackageJSON();
 const plugins = gulpLoadPlugins({
@@ -75,6 +74,7 @@ gulp.task('test:mocha:core', () => {
 
 gulp.task('ghpages', [
   'ghpages:html',
+  'ghpages:less',
   'ghpages:copy:files',
   'ghpages:copy:releases',
 ]);
@@ -103,7 +103,6 @@ gulp.task('check:git', () => {
 
 gulp.task('ghpages:html', ['ghpages:clone'], () => {
   const options = {
-    // config: 'infra/ghpages/config.json',
     // summary: output.to('infra/summary.md'),
     urls: {},
   };
@@ -125,6 +124,14 @@ gulp.task('ghpages:html', ['ghpages:clone'], () => {
       path_.basename = path_.basename.replace('.template', '');
     }))
     .pipe(gulp.dest(outPath));
+});
+
+gulp.task('ghpages:less', ['ghpages:clone'], () => {
+  return gulp.src([
+    'infra/ghpages/**/*.less',
+  ])
+    .pipe(plugins.less({}))
+    .pipe(gulp.dest(output.to('ghpages')));
 });
 
 gulp.task('ghpages:clone', async () => {

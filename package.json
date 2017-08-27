@@ -19,6 +19,7 @@
     "gulp-concat": "",
     "gulp-eslint": "",
     "gulp-inject-string": "",
+    "gulp-less": "",
     "gulp-load-plugins": "",
     "gulp-mocha": "",
     "gulp-remove-empty-lines": "",
@@ -28,9 +29,7 @@
     "lodash": "",
     "mocha": "",
     "webpack-stream": "",
-    "webpack": "",
-    "wintersmith-less": "",
-    "wintersmith": ""
+    "webpack": ""
   },
   "scripts": {
     "build": "gulp",
@@ -38,8 +37,5 @@
     "test": "npm run clean && gulp test",
     "deploy": "npm run clean && gulp deploy",
     "mirror": "npm run clean && gulp mirror"
-  },
-  "dependencies": {
-    "marked": "^0.3.6"
   }
 }
