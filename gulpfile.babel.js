@@ -73,7 +73,11 @@ gulp.task('test:mocha:core', () => {
     .pipe(gulp.dest(output.to('tests')));
 });
 
-gulp.task('ghpages', ['ghpages:html']);
+gulp.task('ghpages', [
+  'ghpages:html',
+  'ghpages:copy:files',
+  'ghpages:copy:releases',
+]);
 
 gulp.task('check', ['check:git']);
 
@@ -97,7 +101,7 @@ gulp.task('check:git', () => {
   });
 });
 
-gulp.task('ghpages:html', ['ghpages:clone', 'ghpages:copy:releases'], () => {
+gulp.task('ghpages:html', ['ghpages:clone'], () => {
   const options = {
     // config: 'infra/ghpages/config.json',
     // summary: output.to('infra/summary.md'),
@@ -156,7 +160,16 @@ gulp.task('ghpages:clone', async () => {
   return await cloneTask;
 });
 
-gulp.task('ghpages:copy:releases', ['userscript'], () => {
+gulp.task('ghpages:copy:files', ['ghpages:clone'], () => {
+  return gulp.src([
+    'infra/ghpages/**/*.css',
+    'infra/ghpages/**/*.js',
+    'infra/ghpages/configure.html',
+  ])
+    .pipe(gulp.dest(output.to('ghpages')));
+});
+
+gulp.task('ghpages:copy:releases', ['ghpages:clone', 'userscript'], () => {
   const files = [];
   for (const [supportImage, supportLagacy] of allBuildOptions()) {
     const featureName = supportImage ? 'full' : 'lite';
