@@ -73,7 +73,7 @@ gulp.task('test:mocha:core', () => {
     .pipe(gulp.dest(output.to('tests')));
 });
 
-gulp.task('ghpages', ['ghpages:wintersmith']);
+gulp.task('ghpages', ['ghpages:html']);
 
 gulp.task('check', ['check:git']);
 
@@ -97,29 +97,39 @@ gulp.task('check:git', () => {
   });
 });
 
-gulp.task('ghpages:wintersmith', ['ghpages:clone', 'ghpages:copy:releases'], (done) => {
+gulp.task('ghpages:html', ['ghpages:clone', 'ghpages:copy:releases'], () => {
   const options = {
-    config: 'infra/ghpages/config.json',
-    summary: output.to('infra/summary.md'),
-    locals: {},
+    // config: 'infra/ghpages/config.json',
+    // summary: output.to('infra/summary.md'),
+    urls: {},
   };
   for (const [supportImage, supportLagacy] of allBuildOptions()) {
     const featureName = supportImage ? 'full' : 'lite';
     const ecmaName = supportLagacy ? 'es5' : 'es7';
     const js = output.to(`adsbypasser.${featureName}.${ecmaName}.user.js`);
-    options.locals[`${featureName}_${ecmaName}`] = js;
+    options.urls[`${featureName}_${ecmaName}`] = js;
   }
   const rootPath = 'infra/ghpages/contents';
   const releasePath = path.join(rootPath, 'releases');
   const outPath = output.to('ghpages');
 
-  const env = wintersmith(options.config);
-  env.build(outPath, (error) => {
-    if (error) {
-      throw error;
-    }
-    done();
-  });
+  return gulp.src([
+    'infra/userscript/metadata.template.js',
+  ])
+    .pipe(plugins.change(_.partial(finalizeHTML, options)))
+    .pipe(plugins.rename((path_) => {
+      path_.basename = path_.basename.replace('.template', '');
+    }))
+    .pipe(gulp.dest(outPath));
+
+
+  // const env = wintersmith(options.config);
+  // env.build(outPath, (error) => {
+  //   if (error) {
+  //     throw error;
+  //   }
+  //   done();
+  // });
 });
 
 gulp.task('ghpages:clone', async () => {
@@ -335,6 +345,13 @@ function finalizeNamespace (supportImage, content) {
   s = s({
     supportImage,
   });
+  return s;
+}
+
+
+function finalizeHTML (options, content) {
+  let s = _.template(content);
+  s = s(options);
   return s;
 }
 
